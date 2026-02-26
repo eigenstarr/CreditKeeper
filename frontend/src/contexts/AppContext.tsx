@@ -5,7 +5,6 @@ import type {
   Transaction,
   CreditData,
   UserProfile,
-  AppMode,
   ProjectedResult
 } from '../../../shared/types';
 
@@ -20,8 +19,6 @@ interface AppContextType {
   setCreditData: (creditData: CreditData | null) => void;
   profile: UserProfile | null;
   setProfile: (profile: UserProfile | null) => void;
-  mode: AppMode;
-  setMode: (mode: AppMode) => void;
   projectedResult: ProjectedResult | null;
   setProjectedResult: (result: ProjectedResult | null) => void;
   currentScreen: string;
@@ -54,7 +51,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [creditData, setCreditData] = useState<CreditData | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [mode, setMode] = useState<AppMode>('real');
   const [projectedResult, setProjectedResult] = useState<ProjectedResult | null>(null);
   const [currentScreen, setCurrentScreen] = useState<string>('onboarding');
   const [isMockData, setIsMockData] = useState<boolean>(false);
@@ -105,8 +101,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setCreditData,
     profile,
     setProfile,
-    mode,
-    setMode,
     projectedResult,
     setProjectedResult,
     currentScreen,

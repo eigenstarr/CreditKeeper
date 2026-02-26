@@ -67,18 +67,22 @@ const Learn: React.FC = () => {
 
       const newXP = profile.financialXP + mission.xpReward;
       const newCompleted = [...profile.completedMissions, mission.id];
+      // Increment streak when completing a mission successfully
+      const newStreak = profile.streak + 1;
 
       const updatedProfile = {
         ...profile,
         financialXP: newXP,
-        completedMissions: newCompleted
+        completedMissions: newCompleted,
+        streak: newStreak
       };
 
       // Try to update profile, if it fails (404), create it first
       try {
         await updateProfile(profile.customerId, {
           financialXP: newXP,
-          completedMissions: newCompleted
+          completedMissions: newCompleted,
+          streak: newStreak
         });
       } catch (updateErr: any) {
         if (updateErr.response?.status === 404) {

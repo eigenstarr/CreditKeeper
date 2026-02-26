@@ -5,7 +5,7 @@ import { simulateScenario } from '../api';
 import type { Transaction, ProjectedScenario } from '../../../shared/types';
 
 const Transactions: React.FC = () => {
-  const { transactions, account, setCurrentScreen, setProjectedResult, setMode } = useApp();
+  const { transactions, account, setCurrentScreen, setProjectedResult } = useApp();
   const [selectedTxn, setSelectedTxn] = useState<Transaction | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -22,7 +22,6 @@ const Transactions: React.FC = () => {
 
       const result = await simulateScenario(account.id, scenario);
       setProjectedResult(result);
-      setMode('projected');
       setCurrentScreen('projected');
     } catch (err) {
       console.error('Replay error:', err);

@@ -2,12 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '../contexts/AppContext';
 import PetView from './PetView';
-import ModeToggle from '../components/ModeToggle';
 import TestDataSelector from '../components/TestDataSelector';
 import { getAccount, getCreditData, getTransactions, checkHealth } from '../api';
 
 const Home: React.FC = () => {
-  const { mode, setMode, profile, account, setAccount, setCreditData, setTransactions, setIsMockData } = useApp();
+  const { profile, account, setAccount, setCreditData, setTransactions, setIsMockData } = useApp();
   const [loading, setLoading] = useState(false);
   const [showTestSelector, setShowTestSelector] = useState(false);
 
@@ -76,7 +75,6 @@ const Home: React.FC = () => {
             >
               Choose Test Profile
             </motion.button>
-            <ModeToggle mode={mode} onToggle={setMode} />
           </div>
         </motion.div>
 
