@@ -138,11 +138,14 @@ const PetView: React.FC = () => {
           View Transactions
         </motion.button>
         <motion.button
-          className="btn-secondary"
+          className="btn-secondary flex items-center justify-center gap-2"
           whileTap={{ scale: 0.95 }}
           onClick={() => setCurrentScreen('learn')}
         >
-          Learn & Earn XP
+          <span>Learn & Earn XP</span>
+          <div className="bg-purple-600 text-white px-2 py-1 rounded-full text-sm font-bold">
+            {profile?.financialXP || 0}
+          </div>
         </motion.button>
       </div>
     </div>

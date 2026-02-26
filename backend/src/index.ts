@@ -18,11 +18,12 @@ const missions: Mission[] = [
   {
     id: 'mission-1',
     title: 'Understanding Credit Utilization',
-    description: 'What happens when your credit utilization goes above 30%?',
+    description: 'Calculate your credit utilization percentage',
     xpReward: 100,
     completed: false,
     scenario: 'Your credit card has a $5,000 limit and you have a $1,200 balance. What is your utilization?',
-    correctAnswer: '24%'
+    correctAnswer: '24%',
+    choices: ['15%', '20%', '24%', '30%']
   },
   {
     id: 'mission-2',
@@ -30,8 +31,9 @@ const missions: Mission[] = [
     description: 'Which factor has the biggest impact on your credit score?',
     xpReward: 100,
     completed: false,
-    scenario: 'Payment history is the most important factor, accounting for about 35% of your credit score.',
-    correctAnswer: 'Payment History'
+    scenario: 'Different factors contribute to your credit score. Which one matters most?',
+    correctAnswer: 'Payment History',
+    choices: ['Credit Utilization', 'Payment History', 'Account Age', 'Credit Mix']
   },
   {
     id: 'mission-3',
@@ -40,7 +42,13 @@ const missions: Mission[] = [
     xpReward: 150,
     completed: false,
     scenario: 'If your limit increases from $5,000 to $10,000 and your balance stays at $1,500, what happens to your utilization?',
-    correctAnswer: 'It decreases from 30% to 15%'
+    correctAnswer: 'It decreases from 30% to 15%',
+    choices: [
+      'It stays the same at 30%',
+      'It decreases from 30% to 15%',
+      'It increases to 50%',
+      'It has no effect on credit score'
+    ]
   },
   {
     id: 'mission-4',
@@ -48,8 +56,9 @@ const missions: Mission[] = [
     description: 'Learn why on-time payments are critical',
     xpReward: 200,
     completed: false,
-    scenario: 'A single missed payment can drop your score by 60-110 points and stay on your report for 7 years.',
-    correctAnswer: 'Acknowledged'
+    scenario: 'A single missed payment can have serious consequences. How much can it drop your score?',
+    correctAnswer: '60-110 points',
+    choices: ['10-20 points', '30-40 points', '60-110 points', '150-200 points']
   },
   {
     id: 'mission-5',
@@ -57,8 +66,14 @@ const missions: Mission[] = [
     description: 'Learn when to make purchases',
     xpReward: 150,
     completed: false,
-    scenario: 'Making large purchases right after your statement closes gives you more time to pay before it affects utilization.',
-    correctAnswer: 'After statement closes'
+    scenario: 'When is the best time to make a large purchase to minimize immediate impact on your reported utilization?',
+    correctAnswer: 'Right after your statement closes',
+    choices: [
+      'Right before your statement closes',
+      'Right after your statement closes',
+      'On the due date',
+      'It doesn\'t matter when'
+    ]
   },
   {
     id: 'mission-6',
@@ -66,8 +81,9 @@ const missions: Mission[] = [
     description: 'Understand credit recovery',
     xpReward: 150,
     completed: false,
-    scenario: 'After negative events, your score can improve over 3-6 months with responsible behavior.',
-    correctAnswer: 'Acknowledged'
+    scenario: 'After a negative event, how long does it typically take to see score improvement with responsible behavior?',
+    correctAnswer: '3-6 months',
+    choices: ['1-2 weeks', '1 month', '3-6 months', '2-3 years']
   },
   {
     id: 'mission-7',
@@ -75,8 +91,14 @@ const missions: Mission[] = [
     description: 'Learn about spreading utilization',
     xpReward: 200,
     completed: false,
-    scenario: 'Having multiple cards with low utilization on each is better than maxing out one card.',
-    correctAnswer: 'Spread across multiple cards'
+    scenario: 'You need to carry a $3,000 balance. Which strategy is better for your credit score?',
+    correctAnswer: 'Spread $1,000 across three cards',
+    choices: [
+      'Put all $3,000 on one card',
+      'Spread $1,000 across three cards',
+      'Split $1,500 between two cards',
+      'It makes no difference'
+    ]
   }
 ];
 

@@ -115,6 +115,7 @@ export interface Mission {
   completed: boolean;
   scenario?: string;
   correctAnswer?: string;
+  choices?: string[]; // Multiple choice options
 }
 
 export type AppMode = 'real' | 'projected';
