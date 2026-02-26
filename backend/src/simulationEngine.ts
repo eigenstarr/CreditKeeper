@@ -45,18 +45,18 @@ export class SimulationEngine {
       explanation = `Large purchase of $${amount.toFixed(2)} increases utilization from ${this.currentUtilization.toFixed(1)}% to ${newUtilization.toFixed(1)}%. This is above the recommended 30% threshold.`;
       correctiveAction = `Pay down $${(newBalance - this.creditLimit * 0.3).toFixed(2)} to bring utilization back below 30%.`;
       recoveryTimeline = {
-        days30: this.baseScore + scoreDelta + 5,
-        days90: this.baseScore + scoreDelta + 15,
-        days180: this.baseScore
+        days30: Math.min(850, this.baseScore + scoreDelta + 5),
+        days90: Math.min(850, this.baseScore + scoreDelta + 15),
+        days180: Math.min(850, this.baseScore)
       };
     } else if (newUtilization > 50) {
       scoreDelta = -35;
       explanation = `This purchase pushes utilization to ${newUtilization.toFixed(1)}%, which is very high. High utilization significantly impacts credit scores.`;
       correctiveAction = `Pay down at least $${(newBalance - this.creditLimit * 0.3).toFixed(2)} to improve your score.`;
       recoveryTimeline = {
-        days30: this.baseScore + scoreDelta + 8,
-        days90: this.baseScore + scoreDelta + 20,
-        days180: this.baseScore + scoreDelta + 28
+        days30: Math.min(850, this.baseScore + scoreDelta + 8),
+        days90: Math.min(850, this.baseScore + scoreDelta + 20),
+        days180: Math.min(850, this.baseScore + scoreDelta + 28)
       };
     } else if (newUtilization > 30) {
       scoreDelta = Math.floor(-utilizationChange * 0.8);
@@ -94,9 +94,9 @@ export class SimulationEngine {
       explanation: 'Missing a payment severely impacts your credit score. Payment history is the most important factor.',
       correctiveAction: 'Make payment immediately to minimize damage. Set up autopay to prevent future missed payments.',
       recoveryTimeline: {
-        days30: this.baseScore + scoreDelta + 15,
-        days90: this.baseScore + scoreDelta + 40,
-        days180: this.baseScore + scoreDelta + 70
+        days30: Math.min(850, this.baseScore + scoreDelta + 15),
+        days90: Math.min(850, this.baseScore + scoreDelta + 40),
+        days180: Math.min(850, this.baseScore + scoreDelta + 70)
       }
     };
   }

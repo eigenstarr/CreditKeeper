@@ -177,18 +177,18 @@ export class ToySimulationEngine {
 
       if (scoreDelta < -20) {
         recoveryTimeline = {
-          days30: projectedScore.finalScore + Math.abs(Math.floor(scoreDelta * 0.2)),
-          days90: projectedScore.finalScore + Math.abs(Math.floor(scoreDelta * 0.5)),
-          days180: currentScore.finalScore
+          days30: Math.min(850, projectedScore.finalScore + Math.abs(Math.floor(scoreDelta * 0.2))),
+          days90: Math.min(850, projectedScore.finalScore + Math.abs(Math.floor(scoreDelta * 0.5))),
+          days180: Math.min(850, currentScore.finalScore)
         };
       }
     } else if (scenario.type === 'missed_payment') {
       explanation = 'Missing a payment severely impacts your score. Payment history accounts for 40% of your toy score.';
       correctiveAction = 'Make payment immediately and set up autopay to prevent future missed payments.';
       recoveryTimeline = {
-        days30: projectedScore.finalScore + 15,
-        days90: projectedScore.finalScore + 40,
-        days180: projectedScore.finalScore + 70
+        days30: Math.min(850, projectedScore.finalScore + 15),
+        days90: Math.min(850, projectedScore.finalScore + 40),
+        days180: Math.min(850, projectedScore.finalScore + 70)
       };
     } else if (scenario.type === 'pay_down') {
       const amount = scenario.paymentAmount || 0;
