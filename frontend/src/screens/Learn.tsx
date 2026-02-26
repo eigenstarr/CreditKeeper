@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../contexts/AppContext';
-import { getMissions, completeMission, updateProfile } from '../api';
+import { getMissions, completeMission, updateProfile, createProfile } from '../api';
 import type { Mission } from '../../../shared/types';
 
 const Learn: React.FC = () => {
@@ -74,10 +74,20 @@ const Learn: React.FC = () => {
         completedMissions: newCompleted
       };
 
-      await updateProfile(profile.customerId, {
-        financialXP: newXP,
-        completedMissions: newCompleted
-      });
+      // Try to update profile, if it fails (404), create it first
+      try {
+        await updateProfile(profile.customerId, {
+          financialXP: newXP,
+          completedMissions: newCompleted
+        });
+      } catch (updateErr: any) {
+        if (updateErr.response?.status === 404) {
+          // Profile doesn't exist in backend, create it
+          await createProfile(updatedProfile);
+        } else {
+          throw updateErr;
+        }
+      }
 
       setProfile(updatedProfile);
 

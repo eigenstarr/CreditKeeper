@@ -143,8 +143,9 @@ const PetView: React.FC = () => {
           onClick={() => setCurrentScreen('learn')}
         >
           <span>Learn & Earn XP</span>
-          <div className="bg-purple-600 text-white px-2 py-1 rounded-full text-sm font-bold">
-            {profile?.financialXP || 0}
+          <div className="bg-orange-600 text-white px-2 py-1 rounded-full text-sm font-bold flex items-center gap-1">
+            <span>🔥</span>
+            <span>{profile?.streak || 0}</span>
           </div>
         </motion.button>
       </div>
