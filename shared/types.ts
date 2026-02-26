@@ -91,10 +91,29 @@ export interface Mission {
 
 export type AppMode = 'real' | 'projected';
 
+export type PandaMood =
+  | 'thriving'    // Very healthy, energetic/playful (800+)
+  | 'content'     // Calm, stable, mild happiness (720-799)
+  | 'motivated'   // Alert/engaged, after positive action
+  | 'neutral'     // Baseline, calm (640-719)
+  | 'concerned'   // Mild worry, early warning (600-639)
+  | 'tired'       // Fatigue from rising utilization (550-599)
+  | 'stressed'    // Stronger warning near threshold (500-549)
+  | 'sick';       // Severe events like missed payment (<500)
+
+export type EnvironmentGrade =
+  | 'lush'        // Bright, warm, lush forest (thriving)
+  | 'bright'      // Normal daylight forest (content/motivated)
+  | 'dim'         // Light cloud cover, slightly dimmer (neutral/concerned)
+  | 'cloudy'      // Cloudy, muted colors (tired)
+  | 'stormy';     // Cloudy + dim, sparse forest (stressed/sick)
+
 export interface PandaState {
-  mood: 'happy' | 'neutral' | 'sad' | 'weak';
+  mood: PandaMood;
   energy: number;
-  environment: 'bright' | 'dim' | 'cloudy';
+  environment: EnvironmentGrade;
+  animation?: 'idle' | 'attention' | 'transition' | 'breathing' | 'blinking';
+  transitionProgress?: number; // 0-1 for smooth state transitions
 }
 
 export interface BillingCycle {
