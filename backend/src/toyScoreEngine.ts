@@ -103,12 +103,13 @@ export class ToyScoreEngine {
 
   private computeUtilization(): FactorScore {
     const { balance, creditLimit } = this.profile.creditCardAccount;
-    const currentUtil = (balance / creditLimit) * 100;
+    const limit = creditLimit || 1;
+    const currentUtil = (balance / limit) * 100;
 
     const last3Cycles = this.profile.billingCycles.slice(-3);
     const avg3Util =
       last3Cycles.length > 0
-        ? last3Cycles.reduce((sum, c) => sum + (c.statementBalance / creditLimit) * 100, 0) / last3Cycles.length
+        ? last3Cycles.reduce((sum, c) => sum + (c.statementBalance / limit) * 100, 0) / last3Cycles.length
         : currentUtil;
 
     const combinedUtil = currentUtil * 0.6 + avg3Util * 0.4;

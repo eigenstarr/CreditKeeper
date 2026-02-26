@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import type { PandaState, EnvironmentGrade } from '../../../shared/types';
+import type { PandaState } from '../../../shared/types';
 import { getEnvironmentColors } from '../utils/pandaLogic';
 
 interface EnvironmentProps {

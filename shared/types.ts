@@ -47,13 +47,40 @@ export interface Customer {
   };
 }
 
+export type LoanType = 'auto' | 'student' | 'personal' | 'line_of_credit';
+
+export type LoanPurpose = 'car' | 'education' | 'debt_consolidation' | 'lifestyle' | 'home_improvement' | 'other';
+
+export type LoanReasonableness = 'reasonable' | 'stretch' | 'unreasonable';
+
+export interface LoanScenario {
+  loanAmount: number;
+  loanType: LoanType;
+  termMonths: number;
+  apr: number;
+  monthlyIncome?: number;
+  purpose?: LoanPurpose;
+}
+
+export interface LoanReasonablenessRating {
+  rating: LoanReasonableness;
+  monthlyPayment: number;
+  newDTI: number;
+  reasons: string[];
+  suggestions: string[];
+  dtiImpact: 'healthy' | 'moderate' | 'high';
+  aprAssessment: 'healthy' | 'expensive' | 'high-risk';
+  loanToIncomeRatio: number;
+}
+
 export interface ProjectedScenario {
-  type: 'purchase' | 'missed_payment' | 'pay_down' | 'replay_transaction';
+  type: 'purchase' | 'missed_payment' | 'pay_down' | 'replay_transaction' | 'new_loan';
   amount?: number;
   merchant?: string;
   category?: string;
   transactionId?: string;
   paymentAmount?: number;
+  loan?: LoanScenario;
 }
 
 export interface ProjectedResult {
@@ -68,6 +95,7 @@ export interface ProjectedResult {
     days180: number;
   };
   correctiveAction?: string;
+  loanRating?: LoanReasonablenessRating;
 }
 
 export interface UserProfile {

@@ -1,5 +1,6 @@
-import type { SyntheticProfile, ProjectedScenario, ToyScoreProjection, BillingCycle, Transaction } from '../../shared/types.js';
+import type { SyntheticProfile, ProjectedScenario, ToyScoreProjection, BillingCycle, Transaction, LoanScenario } from '../../shared/types.js';
 import { ToyScoreEngine } from './toyScoreEngine.js';
+import { LoanCalculator } from './loanCalculator.js';
 
 export class ToySimulationEngine {
   private profile: SyntheticProfile;
@@ -27,6 +28,12 @@ export class ToySimulationEngine {
       primaryFactorChange
     );
 
+    // Calculate loan rating if this is a loan scenario
+    let loanRating;
+    if (scenario.type === 'new_loan' && scenario.loan) {
+      loanRating = this.calculateLoanRating(scenario.loan);
+    }
+
     return {
       currentScore: currentScore.finalScore,
       projectedScore: projectedScore.finalScore,
@@ -35,6 +42,7 @@ export class ToySimulationEngine {
       explanation,
       correctiveAction,
       recoveryTimeline,
+      loanRating,
       factorBreakdown: {
         current: currentScore,
         projected: projectedScore
@@ -55,6 +63,8 @@ export class ToySimulationEngine {
         return this.applyPayDown(cloned, scenario.paymentAmount || 0);
       case 'replay_transaction':
         return this.applyReplayTransaction(cloned, scenario.amount || 0);
+      case 'new_loan':
+        return this.applyNewLoan(cloned, scenario.loan!);
       default:
         return cloned;
     }
@@ -120,6 +130,36 @@ export class ToySimulationEngine {
     return this.applyPurchase(profile, amount);
   }
 
+  private applyNewLoan(profile: SyntheticProfile, loan: LoanScenario): SyntheticProfile {
+    // Calculate monthly payment for the new loan
+    const monthlyPayment = LoanCalculator.calculateMonthlyPayment(loan.loanAmount, loan.apr, loan.termMonths);
+
+    // Update DTI by increasing monthly debt obligations
+    // This is simulated by updating the most recent billing cycle's minimum due
+    const lastCycle = profile.billingCycles[profile.billingCycles.length - 1];
+    if (lastCycle) {
+      // Add loan payment to monthly obligations
+      lastCycle.minimumDue += monthlyPayment;
+    }
+
+    // For line of credit (revolving), add to credit card balance
+    if (loan.loanType === 'line_of_credit') {
+      profile.creditCardAccount.balance += loan.loanAmount;
+      // Increase credit limit to accommodate (simulating opening a new line)
+      if (profile.creditCardAccount.creditLimit) {
+        profile.creditCardAccount.creditLimit += loan.loanAmount * 1.2;
+      } else {
+        profile.creditCardAccount.creditLimit = loan.loanAmount * 1.2;
+      }
+    }
+
+    // Note: We don't add installment loans to the credit card balance
+    // In a real system, this would be a separate loan account
+    // For the toy model, we primarily track the DTI impact
+
+    return profile;
+  }
+
   private identifyPrimaryFactorChange(
     current: any,
     projected: any
@@ -166,13 +206,14 @@ export class ToySimulationEngine {
 
     if (scenario.type === 'purchase') {
       const amount = scenario.amount || 0;
-      const currentUtil = (this.profile.creditCardAccount.balance / this.profile.creditCardAccount.creditLimit) * 100;
-      const newUtil = ((this.profile.creditCardAccount.balance + amount) / this.profile.creditCardAccount.creditLimit) * 100;
+      const limit = this.profile.creditCardAccount.creditLimit || 1;
+      const currentUtil = (this.profile.creditCardAccount.balance / limit) * 100;
+      const newUtil = ((this.profile.creditCardAccount.balance + amount) / limit) * 100;
 
       explanation = `Purchase of $${amount.toFixed(2)} increases utilization from ${currentUtil.toFixed(1)}% to ${newUtil.toFixed(1)}%.`;
 
       if (newUtil > 30) {
-        correctiveAction = `Pay down balance to bring utilization below 30% (approximately $${((this.profile.creditCardAccount.balance + amount) - this.profile.creditCardAccount.creditLimit * 0.3).toFixed(2)}).`;
+        correctiveAction = `Pay down balance to bring utilization below 30% (approximately $${((this.profile.creditCardAccount.balance + amount) - limit * 0.3).toFixed(2)}).`;
       }
 
       if (scoreDelta < -20) {
@@ -192,15 +233,70 @@ export class ToySimulationEngine {
       };
     } else if (scenario.type === 'pay_down') {
       const amount = scenario.paymentAmount || 0;
-      const currentUtil = (this.profile.creditCardAccount.balance / this.profile.creditCardAccount.creditLimit) * 100;
-      const newUtil = Math.max(0, (this.profile.creditCardAccount.balance - amount) / this.profile.creditCardAccount.creditLimit) * 100;
+      const limit = this.profile.creditCardAccount.creditLimit || 1;
+      const currentUtil = (this.profile.creditCardAccount.balance / limit) * 100;
+      const newUtil = Math.max(0, (this.profile.creditCardAccount.balance - amount) / limit) * 100;
 
       explanation = `Paying down $${amount.toFixed(2)} reduces utilization from ${currentUtil.toFixed(1)}% to ${newUtil.toFixed(1)}%.`;
       correctiveAction = 'Continue making on-time payments and maintain low utilization for continued score improvement.';
     } else if (scenario.type === 'replay_transaction') {
       explanation = `Replaying this transaction shows how it would affect your current credit situation.`;
+    } else if (scenario.type === 'new_loan' && scenario.loan) {
+      const loan = scenario.loan;
+      const loanTypeLabel = this.getLoanTypeLabel(loan.loanType);
+
+      explanation = `Taking out a ${loanTypeLabel} loan of $${loan.loanAmount.toFixed(2)} at ${loan.apr}% APR for ${loan.termMonths} months affects your debt-to-income ratio and credit mix.`;
+
+      if (scoreDelta < -15) {
+        correctiveAction = 'Consider reducing loan amount, extending the term, or improving your credit score before borrowing.';
+        recoveryTimeline = {
+          days30: Math.min(850, projectedScore.finalScore + Math.abs(Math.floor(scoreDelta * 0.15))),
+          days90: Math.min(850, projectedScore.finalScore + Math.abs(Math.floor(scoreDelta * 0.40))),
+          days180: Math.min(850, projectedScore.finalScore + Math.abs(Math.floor(scoreDelta * 0.70)))
+        };
+      } else if (scoreDelta >= 0) {
+        correctiveAction = 'Make all loan payments on time to maintain and improve your credit score.';
+      } else {
+        correctiveAction = 'Small impact expected. Continue responsible credit behavior.';
+      }
     }
 
     return { explanation, correctiveAction, recoveryTimeline };
+  }
+
+  private getLoanTypeLabel(loanType: string): string {
+    const labels: Record<string, string> = {
+      auto: 'auto',
+      student: 'student',
+      personal: 'personal',
+      line_of_credit: 'line of credit'
+    };
+    return labels[loanType] || loanType;
+  }
+
+  private calculateLoanRating(loan: LoanScenario) {
+    // Get current monthly debt from billing cycles
+    const lastCycle = this.profile.billingCycles[this.profile.billingCycles.length - 1];
+    const currentMonthlyDebt = lastCycle ? lastCycle.minimumDue : 0;
+
+    // Determine monthly income
+    let monthlyIncome = loan.monthlyIncome;
+    if (!monthlyIncome && this.profile.checkingAccount) {
+      // Calculate from deposits if available
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const recentDeposits = this.profile.checkingAccount.deposits.filter(
+        (d) => d.type === 'paycheck' && new Date(d.date) >= thirtyDaysAgo
+      );
+      monthlyIncome = recentDeposits.reduce((sum, d) => sum + d.amount, 0);
+    }
+
+    // Default to a reasonable estimate if no income data
+    if (!monthlyIncome || monthlyIncome === 0) {
+      monthlyIncome = 5000; // Default assumption
+    }
+
+    return LoanCalculator.calculateReasonableness(loan, currentMonthlyDebt, monthlyIncome);
   }
 }

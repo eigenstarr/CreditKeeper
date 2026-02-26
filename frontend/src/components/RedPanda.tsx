@@ -18,7 +18,7 @@ interface RedPandaProps {
  * - Posture changes based on mood
  * - Accessibility through posture/face cues (not just color)
  */
-const RedPanda: React.FC<RedPandaProps> = ({ state, showAttention = false, onAnimationComplete }) => {
+const RedPanda: React.FC<RedPandaProps> = ({ state, showAttention = false }) => {
   const { mood, energy } = state;
   const [isBlinking, setIsBlinking] = useState(false);
 
