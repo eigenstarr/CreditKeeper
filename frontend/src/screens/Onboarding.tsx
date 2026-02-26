@@ -13,7 +13,7 @@ const Onboarding: React.FC = () => {
   const [error, setError] = useState('');
 
   const defaultPandaState: PandaState = {
-    mood: 'happy',
+    mood: 'content',
     energy: 75,
     environment: 'bright'
   };
